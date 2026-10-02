@@ -84,9 +84,26 @@ export const ANIM = {
   bolt:     { frames: 2, speed: 0.05, loop: true },
 };
 
+/**
+ * Alguns sprites (itens) têm UMA animação só e entram na tabela de forma
+ * "flat": `coin: { frames: 4, ... }`. Estas helpers normalizam os dois formatos
+ * para que SpriteFactory e ferramentas tratem tudo igual.
+ */
+export function isFlat(kind) {
+  const table = ANIM[kind];
+  return Boolean(table) && typeof table.frames === 'number';
+}
+
+/** Lista os nomes de animação de uma família. */
+export function animNames(kind) {
+  if (!ANIM[kind]) return [];
+  return isFlat(kind) ? ['idle'] : Object.keys(ANIM[kind]);
+}
+
 /** Devolve a definição de animação com segurança (fallback: idle / 1 frame). */
 export function animDef(kind, name) {
   const table = ANIM[kind];
   if (!table) return { frames: 1, speed: 0.2, loop: false };
+  if (isFlat(kind)) return table;
   return table[name] || table.idle || { frames: 1, speed: 0.2, loop: false };
 }
