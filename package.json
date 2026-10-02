@@ -1,0 +1,16 @@
+{
+  "name": "belisco-o-gato-ninja",
+  "version": "1.0.0",
+  "description": "Platformer 2D pixel art em HTML5 Canvas, 100% procedural, zero dependências de runtime.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node tools/server.mjs",
+    "dev": "vite",
+    "test": "node --test tests/",
+    "sheets": "node tools/sheet.mjs"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"
+  }
+}
