@@ -6,7 +6,7 @@
 import { Entity } from './Entity.js';
 import { GRAVITY } from '../data/constants.js';
 
-const SIZE = { shuriken: [10, 10], arrow: [14, 8], bomb: [10, 10], bolt: [16, 64] };
+const SIZE = { shuriken: [10, 10], arrow: [14, 8], bomb: [10, 10], bolt: [16, 64], spark: [12, 12] };
 
 export class Projectile extends Entity {
   constructor(kind, x, y, vx, vy, opts = {}) {
