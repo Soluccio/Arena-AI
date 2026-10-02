@@ -23,14 +23,17 @@ class SoftCtx {
   }
   translate(x, y) { this._dx += x; this._dy += y; }
   scale() { /* não usado pelos sprites */ }
-  beginPath() {} arc() {} fill() {} stroke() {} fillText() {} measureText() { return { width: 0 }; }
+  setTransform() { this._dx = 0; this._dy = 0; }
+  rotate() {}
+  beginPath() {} arc() {} fill() {} stroke() {} moveTo() {} lineTo() {}
+  fillText() {} measureText() { return { width: 0 }; }
 
   clearRect(x, y, w, h) { this.fillRect(x, y, w, h, 'rgba(0,0,0,0)', true); }
 
   fillRect(x, y, w, h, force, clear) {
     const color = force || this.fillStyle;
     const rgba = parseColor(color);
-    const alpha = clear ? 0 : rgba[3] * this.globalAlpha;
+    const sa = clear ? 0 : (rgba[3] / 255) * this.globalAlpha;
     const x0 = Math.round(x + this._dx);
     const y0 = Math.round(y + this._dy);
     for (let j = 0; j < Math.round(h); j++) {
@@ -39,13 +42,24 @@ class SoftCtx {
       for (let i = 0; i < Math.round(w); i++) {
         const px2 = x0 + i;
         if (px2 < 0 || px2 >= this.canvas.width) continue;
-        const o = (py * this.canvas.width + px2) * 4;
-        this.data[o] = rgba[0];
-        this.data[o + 1] = rgba[1];
-        this.data[o + 2] = rgba[2];
-        this.data[o + 3] = alpha;
+        this._blend(px2, py, rgba[0], rgba[1], rgba[2], sa);
       }
     }
+  }
+
+  /** Composição "source-over" (igual ao canvas real). */
+  _blend(px, py, r, g, b, sa) {
+    const o = (py * this.canvas.width + px) * 4;
+    const da = this.data[o + 3] / 255;
+    const oa = sa + da * (1 - sa);
+    if (oa <= 0) {
+      this.data[o] = this.data[o + 1] = this.data[o + 2] = this.data[o + 3] = 0;
+      return;
+    }
+    this.data[o] = (r * sa + this.data[o] * da * (1 - sa)) / oa;
+    this.data[o + 1] = (g * sa + this.data[o + 1] * da * (1 - sa)) / oa;
+    this.data[o + 2] = (b * sa + this.data[o + 2] * da * (1 - sa)) / oa;
+    this.data[o + 3] = Math.round(oa * 255);
   }
 
   drawImage(img, dx, dy) {
@@ -59,11 +73,7 @@ class SoftCtx {
         const px2 = Math.round(dx + this._dx) + i;
         const py = Math.round(dy + this._dy) + j;
         if (px2 < 0 || py < 0 || px2 >= this.canvas.width || py >= this.canvas.height) continue;
-        const o = (py * this.canvas.width + px2) * 4;
-        this.data[o] = src[so];
-        this.data[o + 1] = src[so + 1];
-        this.data[o + 2] = src[so + 2];
-        this.data[o + 3] = src[so + 3];
+        this._blend(px2, py, src[so], src[so + 1], src[so + 2], (src[so + 3] / 255) * this.globalAlpha);
       }
     }
   }

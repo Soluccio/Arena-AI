@@ -18,7 +18,6 @@ export class HUD {
     for (let i = 0; i < MAX_LIVES; i++) {
       const x = 6 + i * 12;
       if (i < g.player.hp) {
-        const frame = Math.floor(g.timeHud || 0) || 0;
         ctx.drawImage(get('heart', 'idle', 0), x, 6);
       } else {
         ctx.save();
@@ -46,7 +45,7 @@ export class HUD {
     if (g.boss && !g.boss.dead) {
       const bw = 200;
       const bx = (VIEW_W - bw) / 2;
-      const by = VIEW_W ? 240 : 240;
+      const by = 240;
       ctx.fillStyle = '#0b0b16';
       ctx.fillRect(bx - 2, by - 2, bw + 4, 9);
       ctx.fillStyle = '#3b0d0d';
